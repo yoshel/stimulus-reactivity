@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>use-reactivity</title>
+  <style>
+    .button {
+      padding: 0.25rem 0.5rem;
+    }
+
+    .orange {
+      background-color: orange;
+    }
+
+    [data-cloak] {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+<div data-controller="reactive">
+  <h1>use-reactivity</h1>
+  <h2>data-text</h2>
+  <input type="text" placeholder="What's your name?" data-action="reactive#setName">
+  <p data-reactive-text="greeting"></p>
+
+  <h2>data-bind</h2>
+  <button type="button" class="button" data-reactive-bind="class:buttonClass" data-action="reactive#toggleFastDelivery">
+    Fast delivery
+  </button>
+  <div>
+    <input type="text" data-reactive-bind="placeholder:addressPlaceholder" data-action="reactive#setAddress">
+    <input type="text" disabled data-reactive-bind="value:address">
+  </div>
+  <div>
+    <button data-action="reactive#setPaymentCard">Pay via Card</button>
+    <select data-reactive-bind="value:payment">
+      <option value=""></option>
+      <option value="cash">Cash</option>
+      <option value="credit_card">Credit Card</option>
+    </select>
+  </div>
+  <div>
+    <button data-action="reactive#toggleAvailment" data-reactive-text="toggleAvailmentLabel"></button>
+    <label>
+      <input type="checkbox" value="avail_membership" data-reactive-bind="checked:availment">
+      Avail membership
+    </label>
+  </div>
+  <div data-reactive-bind="class:buttonClass title:address">Multiple binds</div>
+
+  <h2>data-model</h2>
+  <input type="text" value="REACTIVE10" data-reactive-model="coupon">
+  <p>Applying coupon: <span data-reactive-text="coupon"></span></p>
+  <button type="button" data-action="reactive#removeCoupon">Remove coupon</button>
+
+  <div>
+    <label>
+      <input type="checkbox" data-reactive-model="pineapple">
+      Add pineapple <span data-reactive-text="pineapple"></span>
+    </label>
+  </div>
+
+  <div>
+    <p>Crust: <span data-reactive-text="crust"></span></p>
+    <label>
+      <input type="radio" value="thin" data-reactive-model="crust">
+      Thin
+    </label>
+    <label>
+      <input type="radio" value="thick" data-reactive-model="crust">
+      Thick
+    </label>
+  </div>
+
+  <div>
+    Size: <span data-reactive-text="size"></span>
+    <div>
+      <select data-reactive-model="size">
+        <option>8"</option>
+        <option>12"</option>
+        <option>16"</option>
+      </select>
+    </div>
+    <button type="button" data-action="reactive#setSizeSmall">Small only</button>
+  </div>
+
+  <h2>data-html</h2>
+  <div data-reactive-html="description"></div>
+
+  <h2>data-show</h2>
+  <button data-action="reactive#toggleOpen">Toggle</button>
+  <div data-reactive-show="open" style="display: flex">
+    <h3>Contents</h3>
+    <p data-reactive-text="greeting"></p>
+  </div>
+
+  <h2>data-if</h2>
+  <button data-action="reactive#toggleOpen">Toggle</button>
+  <template data-reactive-if="open">
+    <div>
+      <h3>Contents</h3>
+      <p data-reactive-text="greeting"></p>
+    </div>
+  </template>
+
+  <h2>data-each</h2>
+  <p>Toppings</p>
+  <ul>
+    <template data-reactive-each="toppings">
+      <li data-reactive-text="topping"></li>
+    </template>
+  </ul>
+
+  <h2>data-cloak</h2>
+  <div data-cloak="reactive">From the shadows</div>
+  <div data-cloak="ghost">Still hidden because my controller doesn't exist</div>
+</div>
+
+<script type="module" src="test.js"></script>
+</body>
+</html>
