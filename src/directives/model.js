@@ -31,7 +31,7 @@ export class ModelDirective extends BaseDirective {
       this.controller[accessor] = element.value
     }
     element.addEventListener("change", listener)
-    this.cleanup(() => element.removeEventListener(listener))
+    this.cleanup(() => element.removeEventListener("change", listener))
   }
 
   modelRadio(element, accessor) {
@@ -45,7 +45,7 @@ export class ModelDirective extends BaseDirective {
       if (element.checked) this.controller[accessor] = element.value
     }
     element.addEventListener("change", listener)
-    this.cleanup(() => element.removeEventListener(listener))
+    this.cleanup(() => element.removeEventListener("change", listener))
   }
 
   modelCheckbox(element, accessor) {
@@ -59,7 +59,7 @@ export class ModelDirective extends BaseDirective {
       this.controller[accessor] = element.checked
     }
     element.addEventListener("change", listener)
-    this.cleanup(() => element.removeEventListener(listener))
+    this.cleanup(() => element.removeEventListener("change", listener))
   }
 
   modelInput(element, accessor) {
@@ -76,6 +76,6 @@ export class ModelDirective extends BaseDirective {
       this.controller[accessor] = element.value
     }
     element.addEventListener("input", listener)
-    this.cleanup(() => element.removeEventListener(listener))
+    this.cleanup(() => element.removeEventListener("input", listener))
   }
 }
