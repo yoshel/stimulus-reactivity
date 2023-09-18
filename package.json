@@ -1,6 +1,6 @@
 {
   "name": "stimulus-reactivity",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Reactivity mixin for Stimulus",
   "author": "Helson Yosores",
   "license": "MIT",
