@@ -2,7 +2,7 @@ export class Observer {
   constructor(controller) {
     this.controller = controller
     this.observer = new MutationObserver(mutations => this.processMutations(mutations))
-    this.observerOptions = { subtree: true, childList: true, attributes: true }
+    this.observerOptions = { subtree: true, childList: true, attributes: true, attributeOldValue: true }
     this.directives = []
   }
 
@@ -38,7 +38,7 @@ export class Observer {
   processMutations(mutations) {
     for (const mutation of mutations) {
       if (mutation.type === "attributes") {
-        this.processAttributeChanged(mutation.target, mutation.attributeName)
+        this.processAttributeChanged(mutation)
       } else if (mutation.type === "childList") {
         mutation.addedNodes.forEach(node => {
           if (node.nodeType === Node.ELEMENT_NODE) this.processAddedElement(node)
@@ -58,13 +58,18 @@ export class Observer {
     })
   }
 
-  processAttributeChanged(element, attributeName) {
-    if (element.hasAttribute(attributeName)) {
-      // HACK: treat attribute changed as the element being removed and re-added
-      this.processRemovedElement(element)
-      this.processAddedElement(element)
+  processAttributeChanged(mutation) {
+    const { target, attributeName, oldValue } = mutation
+
+    const attributeExists = target.hasAttribute(attributeName)
+    const hasOldValue = oldValue != null
+
+    if (attributeExists && !hasOldValue) {
+      this.processAddedElement(target)
+    } else if (hasOldValue && !attributeExists) {
+      this.processRemovedElement(target)
     } else {
-      this.processRemovedElement(element)
+      this.processElementAttributeChanged(target, attributeName)
     }
   }
 
@@ -74,5 +79,15 @@ export class Observer {
 
   processRemovedElement(element) {
     this.directives.forEach(directive => directive.matchElement(element) && directive.elementRemoved(element))
+  }
+
+  processElementAttributeChanged(element, attribute) {
+    this.directives.forEach(directive => {
+      if (!directive.matchElement(element) || attribute !== directive.attributeName) return
+
+      // HACK: treat attribute changed as the element being removed and re-added
+      directive.elementRemoved(element)
+      directibe.elementAdded(element)
+    })
   }
 }
