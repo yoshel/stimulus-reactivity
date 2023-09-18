@@ -18,10 +18,10 @@ export class ModelDirective extends BaseDirective {
   }
 
   modelSelect(element, accessor) {
-    // If element already has a predefined value from html, use that as initial value
-    if (element.hasAttribute("value")) {
-      this.controller[accessor] = element.value
-    }
+    // If element already has a predefined selected from html, use that as initial value
+    Array.from(element.options).forEach(option => {
+      if (option.hasAttribute("selected")) this.controller[accessor] = element.value
+    })
 
     this.effect(() => {
       element.value = this.controller[accessor]
