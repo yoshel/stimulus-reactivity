@@ -79,19 +79,17 @@ export default function useReactivity(controller) {
 }
 
 function setup(element, directives) {
-  directives.forEach(directive => directive.handle(element))
+  // Setup children first and wrap with Array.from so that it doesn't include any DOM changes made by directives.
+  Array.from(element.children).forEach(child => setup(child, directives))
 
-  for (const child of element.children) {
-    setup(child, directives)
-  }
+  directives.forEach(directive => directive.handle(element))
 }
 
 function teardown(element, directives) {
-  directives.forEach(directive => directive.cleanup(element))
+  // Teardown children first and wrap with Array.from so that it doesn't include any DOM changes made by directives.
+  Array.from(element.children).forEach(child => teardown(child, directives))
 
-  for (const child of element.children) {
-    teardown(child, directives)
-  }
+  directives.forEach(directive => directive.cleanup(element))
 }
 
 function defineStateAccessors(controller, state) {
