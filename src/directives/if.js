@@ -1,32 +1,25 @@
-import { BaseDirective } from "./base"
+import { directive } from "../directive"
 
-export class IfDirective extends BaseDirective {
-  static name = "if"
+export const if_ = directive("if", (element, { effect, cleanup, value }) => {
+  effect(() => {
+    value() ? show(element) : hide(element)
+  })
 
-  act(element) {
-    this.effect(() => {
-      this.getValue(element) ? this.show(element) : this.hide(element)
-    })
-    this.cleanup(() => this.hide(element))
-  }
+  cleanup(() => hide(element))
+})
 
-  show(element) {
-    if (element._undoIf) return // already shown
+function show(template) {
+  if (template._undoIf) return // already shown
 
-    const clone = element.content.cloneNode(true).firstElementChild
+  const clone = template.content.cloneNode(true).firstElementChild
+  template.after(clone)
 
-    this.observer.pause(() => {
-      element.after(clone)
-      this.traverseTree(clone)
-    })
+  template._undoIf = () => clone.remove()
+}
 
-    element._undoIf = () => clone.remove()
-  }
+function hide(template) {
+  if (!template._undoIf) return // already hidden
 
-  hide(element) {
-    if (!element._undoIf) return // already hidden
-
-    element._undoIf()
-    delete element._undoIf
-  }
+  template._undoIf()
+  delete template._undoIf
 }

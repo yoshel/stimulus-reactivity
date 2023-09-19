@@ -1,15 +1,9 @@
-import { BaseDirective } from "./base"
+import { directive } from "../directive"
 
-export class ShowDirective extends BaseDirective {
-  static name = "show"
+export const show = directive("show", (element, { effect, value }) => {
+  const originalDisplay = element.style.display
 
-  act(element) {
-    const originalDisplay = element.style.display
-
-    this.effect(() => {
-      this.pauseObserver(() => {
-        element.style.display = this.getValue(element) ? originalDisplay : "none"
-      })
-    })
-  }
-}
+  effect(() => {
+    element.style.display = value() ? originalDisplay : "none"
+  })
+})

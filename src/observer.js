@@ -1,93 +1,73 @@
-export class Observer {
-  constructor(controller) {
-    this.controller = controller
-    this.observer = new MutationObserver(mutations => this.processMutations(mutations))
-    this.observerOptions = { subtree: true, childList: true, attributes: true, attributeOldValue: true }
-    this.directives = []
-  }
+export function createObserver() {
+  const onElementAddeds = []
+  const onElementRemoveds = []
+  const onAttributeAddeds = []
+  const onAttributeRemoveds = []
 
-  addDirective(Directive) {
-    this.directives.push(new Directive(this.controller, this))
-  }
+  const observer = new MutationObserver(mutations => {
+    const addedElements = []
+    const removedElements = []
 
-  start() {
-    this.observe()
-    this.traverseTree(this.controller.element)
-  }
+    const addedAttributes = []
+    const removedAttributes = []
 
-  stop() {
-    if (!this.started) return
-
-    this.observer.disconnect()
-    this.started = false
-  }
-
-  observe() {
-    if (this.started) return
-
-    this.observer.observe(this.controller.element, this.observerOptions)
-    this.started = true
-  }
-
-  pause(callback) {
-    this.stop()
-    callback()
-    this.observe()
-  }
-
-  processMutations(mutations) {
     for (const mutation of mutations) {
+      if (mutation.type === "childList") {
+        mutation.addedNodes.forEach(node => node.nodeType === Node.ELEMENT_NODE && addedElements.push(node))
+        mutation.removedNodes.forEach(node => node.nodeType === Node.ELEMENT_NODE && removedElements.push(node))
+      }
       if (mutation.type === "attributes") {
-        this.processAttributeChanged(mutation)
-      } else if (mutation.type === "childList") {
-        mutation.addedNodes.forEach(node => {
-          if (node.nodeType === Node.ELEMENT_NODE) this.processAddedElement(node)
-        })
+        const { target, attributeName, oldValue } = mutation
+        const attributeExists = target.hasAttribute(attributeName)
 
-        mutation.removedNodes.forEach(node => {
-          if (node.nodeType === Node.ELEMENT_NODE) this.processRemovedElement(node)
-        })
+        if (target.hasAttribute(attributeName) && oldValue == null) {
+          addedAttributes.push([target, attributeName])
+        } else if (target.hasAttribute(attributeName)) {
+          removedAttributes.push([target, attributeName])
+          addedAttributes.push([target, attributeName])
+        } else {
+          removedAttributes.push([target, attributeName])
+        }
       }
     }
-  }
 
-  traverseTree(tree, includeRoot = true) {
-    this.directives.forEach(directive => {
-      if (includeRoot && directive.matchElement(tree)) directive.elementAdded(tree)
-      directive.matchElementsInTree(tree).forEach(element => directive.elementAdded(element))
+    removedAttributes.forEach(([element, attribute]) => {
+      onAttributeRemoveds.forEach(callback => callback(element, attribute))
     })
-  }
 
-  processAttributeChanged(mutation) {
-    const { target, attributeName, oldValue } = mutation
-
-    const attributeExists = target.hasAttribute(attributeName)
-    const hasOldValue = oldValue != null
-
-    if (attributeExists && !hasOldValue) {
-      this.processAddedElement(target)
-    } else if (hasOldValue && !attributeExists) {
-      this.processRemovedElement(target)
-    } else {
-      this.processElementAttributeChanged(target, attributeName)
-    }
-  }
-
-  processAddedElement(element) {
-    this.directives.forEach(directive => directive.matchElement(element) && directive.elementAdded(element))
-  }
-
-  processRemovedElement(element) {
-    this.directives.forEach(directive => directive.matchElement(element) && directive.elementRemoved(element))
-  }
-
-  processElementAttributeChanged(element, attribute) {
-    this.directives.forEach(directive => {
-      if (!directive.matchElement(element) || attribute !== directive.attributeName) return
-
-      // HACK: treat attribute changed as the element being removed and re-added
-      directive.elementRemoved(element)
-      directibe.elementAdded(element)
+    addedAttributes.forEach(([element, attribute]) => {
+      onAttributeAddeds.forEach(callback => callback(element, attribute))
     })
+
+    removedElements.forEach(element => {
+      onElementRemoveds.forEach(callback => callback(element))
+    })
+
+    addedElements.forEach(element => {
+      onElementAddeds.forEach(callback => callback(element))
+    })
+  })
+
+  let observedElement
+  let started = false
+  const start = element => {
+    if (started) return
+
+    observer.observe(element, { subtree: true, childList: true, attributes: true, attributeOldValue: true })
+    observedElement = element
+    started = true
   }
+  const stop = () => {
+    if (!started) return
+
+    observer.disconnect()
+    started = false
+  }
+
+  const onElementAdded = (callback) => onElementAddeds.push(callback)
+  const onElementRemoved = (callback) => onElementRemoveds.push(callback)
+  const onAttributeAdded = (callback) => onAttributeAddeds.push(callback)
+  const onAttributeRemoved = (callback) => onAttributeRemoveds.push(callback)
+
+  return { start, stop, onElementAdded, onElementRemoved, onAttributeAdded, onAttributeRemoved }
 }

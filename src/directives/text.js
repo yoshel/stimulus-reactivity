@@ -1,13 +1,7 @@
-import { BaseDirective } from "./base"
+import { directive } from "../directive"
 
-export class TextDirective extends BaseDirective {
-  static name = "text"
-
-  act(element) {
-    this.effect(() => {
-      this.pauseObserver(() => {
-        element.textContent = this.getValue(element)
-      })
-    })
-  }
-}
+export const text = directive("text", (element, { effect, cleanup, value }) => {
+  effect(() => {
+    element.textContent = value()
+  })
+})

@@ -1,37 +1,29 @@
-import { BaseDirective } from "./base"
+import { directive } from "../directive"
 
-export class EachDirective extends BaseDirective {
-  static name = "each"
+export const each = directive("each", (element, { effect, cleanup, value }) => {
+  effect(() => {
+    if (element._undoEach) element._undoEach()
 
-  act(element) {
-    this.effect(() => {
-      if (element._undoEach) element._undoEach()
+    loop(element, value())
+  })
 
-      this.loop(element, this.getValue(element))
-    })
-    this.cleanup(() => element._undoEach && element._undoEach())
-  }
+  cleanup(() => element._undoEach && element._undoEach())
+})
 
-  loop(template, iterable) {
-    const addedElements = []
+function loop(template, value) {
+  const addedElements = []
 
-    let index = 0
-    let lastElement = template
-    for (const item of iterable) {
-      const clone = template.content.cloneNode(true).firstElementChild
-      clone.$item = item
-      clone.$index = index
+  let lastElement = template
+  value.forEach((item, index) => {
+    const clone = template.content.cloneNode(true).firstElementChild
+    clone.$item = item
+    clone.$index = index
 
-      this.pauseObserver(() => {
-        lastElement.after(clone)
-        this.traverseTree(clone)
-      })
+    lastElement.after(clone)
 
-      addedElements.push(clone)
-      lastElement = clone
-      index++
-    }
+    addedElements.push(clone)
+    lastElement = clone
+  })
 
-    template._undoEach = () => addedElements.forEach(element => element.remove())
-  }
+  template._undoEach = () => addedElements.forEach(element => element.remove())
 }

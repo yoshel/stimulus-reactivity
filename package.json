@@ -9,8 +9,8 @@
     "url": "https://github.com/yoshel/stimulus-reactivity.git"
   },
   "type": "module",
-  "main": "./dist/stimulus-reactivity.js",
-  "module": "./dist/stimulus-reactivity.js",
+  "main": "../marketplace/vendor/javascript/stimulus-reactivity.js",
+  "module": "../marketplace/vendor/javascript/stimulus-reactivity.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

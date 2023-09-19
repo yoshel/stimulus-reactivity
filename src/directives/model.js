@@ -1,81 +1,67 @@
-import { BaseDirective } from "./base"
+import { directive } from "../directive"
 
-export class ModelDirective extends BaseDirective {
-  static name = "model"
-
-  act(element) {
-    const accessor = this.getAttribute(element)
-
-    if (element.tagName === "SELECT") {
-      this.modelSelect(element, accessor)
-    } else if (element.type === "checkbox") {
-      this.modelCheckbox(element, accessor)
-    } else if (element.type === "radio") {
-      this.modelRadio(element, accessor)
-    } else {
-      this.modelInput(element, accessor)
-    }
+export const model = directive("model", (element, context) => {
+  if (element.tagName === "SELECT") {
+    selectModel(element, context)
+  } else if (element.type === "radio") {
+    radioModel(element, context)
+  } else if (element.type === "checkbox") {
+    checkboxModel(element, context)
+  } else {
+    textModel(element, context)
   }
+})
 
-  modelSelect(element, accessor) {
-    // If element already has a predefined selected from html, use that as initial value
-    Array.from(element.options).forEach(option => {
-      if (option.hasAttribute("selected")) this.controller[accessor] = element.value
-    })
+function selectModel(element, { assign, value, effect, cleanup }) {
+  // If element already has a predefined selected from html, use that as initial value
+  Array.from(element.options).forEach(option => {
+    if (option.hasAttribute("selected")) assign(element.value)
+  })
 
-    this.effect(() => {
-      element.value = this.controller[accessor]
-    })
+  effect(() => {
+    element.value = value()
+  })
 
-    const listener = () => {
-      this.controller[accessor] = element.value
-    }
-    element.addEventListener("change", listener)
-    this.cleanup(() => element.removeEventListener("change", listener))
-  }
+  const listener = () => assign(element.value)
+  element.addEventListener("change", listener)
+  cleanup(() => element.removeEventListener("change", listener))
+}
 
-  modelRadio(element, accessor) {
-    if (element.hasAttribute("checked")) this.controller[accessor] = element.value
+function radioModel(element, { assign, value, effect, cleanup }) {
+  // If element is already checked from html, use that as initial value
+  if (element.hasAttribute("checked")) assign(element.value)
 
-    this.effect(() => {
-      element.checked = element.value == this.controller[accessor]
-    })
+  effect(() => {
+    element.checked = element.value == value()
+  })
 
-    const listener = () => {
-      if (element.checked) this.controller[accessor] = element.value
-    }
-    element.addEventListener("change", listener)
-    this.cleanup(() => element.removeEventListener("change", listener))
-  }
+  const listener = () => element.checked && assign(element.value)
+  element.addEventListener("change", listener)
+  cleanup(() => element.removeEventListener("change", listener))
+}
 
-  modelCheckbox(element, accessor) {
-    if (element.hasAttribute("checked")) this.controller[accessor] = element.checked
+function checkboxModel(element, { assign, value, effect, cleanup }) {
+  // If element is already checked from html, use that as initial value
+  if (element.hasAttribute("checked")) assign(element.checked)
 
-    this.effect(() => {
-      element.checked = this.controller[accessor]
-    })
+  effect(() => {
+    element.checked = value()
+  })
 
-    const listener = () => {
-      this.controller[accessor] = element.checked
-    }
-    element.addEventListener("change", listener)
-    this.cleanup(() => element.removeEventListener("change", listener))
-  }
+  const listener = () => assign(element.checked)
+  element.addEventListener("change", listener)
+  cleanup(() => element.removeEventListener("change", listener))
+}
 
-  modelInput(element, accessor) {
-    // If element already has a predefined value from html, use that as initial value
-    if (element.hasAttribute("value")) {
-      this.controller[accessor] = element.value
-    }
+function textModel(element, { assign, value, effect, cleanup }) {
+  // If element already has a predefined value from html, use that as initial value
+  if (element.hasAttribute("value")) assign(element.value)
 
-    this.effect(() => {
-      element.value = this.controller[accessor]
-    })
+  effect(() => {
+    element.value = value()
+  })
 
-    const listener = () => {
-      this.controller[accessor] = element.value
-    }
-    element.addEventListener("input", listener)
-    this.cleanup(() => element.removeEventListener("input", listener))
-  }
+  const listener = () => assign(element.value)
+  element.addEventListener("input", listener)
+  cleanup(() => element.removeEventListener("input", listener))
 }

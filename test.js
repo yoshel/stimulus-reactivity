@@ -4,8 +4,8 @@ import useReactivity from "./src"
 window.Stimulus = Application.start()
 
 class ReactiveController extends Controller {
-  static state = {
-    name: "",
+  static state = () => ({
+    name: "Marble",
     address: "",
     payment: "",
     fastDelivery: false,
@@ -16,10 +16,14 @@ class ReactiveController extends Controller {
     size: "",
     open: false,
     toppings: ["pepperoni", "onions", "mushrooms", "pineapple"]
-  }
+  })
 
   connect() {
     useReactivity(this)
+
+    setTimeout(() => {
+      this.name = "Garbage"
+    }, 1000)
   }
 
   setName(event) {

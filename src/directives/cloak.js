@@ -1,15 +1,10 @@
-import { BaseDirective } from "./base"
+import { directive } from "../directive"
 
-export class CloakDirective extends BaseDirective {
-  get attributeName() {
-    return "data-cloak"
+export const cloak = directive(
+  "cloak",
+  (element) => element.removeAttribute("data-cloak"),
+  {
+    attributeName: () => "data-cloak",
+    selector: (context) => `[data-cloak="${context.controller.identifier}"]`
   }
-
-  get selector() {
-    return `[data-cloak="${this.controller.identifier}"]`
-  }
-
-  act(element) {
-    element.removeAttribute("data-cloak")
-  }
-}
+)
