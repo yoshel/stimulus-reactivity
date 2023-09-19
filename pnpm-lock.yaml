@@ -11,9 +11,6 @@ devDependencies:
   '@vue/reactivity':
     specifier: ^3.3.4
     version: 3.3.4
-  lodash.clonedeep:
-    specifier: ^4.5.0
-    version: 4.5.0
   vite:
     specifier: ^4.4.5
     version: 4.4.5
@@ -269,10 +266,6 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
-
-  /lodash.clonedeep@4.5.0:
-    resolution: {integrity: sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==}
-    dev: true
 
   /nanoid@3.3.6:
     resolution: {integrity: sha512-BGcqMMJuToF7i1rt+2PWSNVnWIkGCU78jBG3RxO/bZlnZPK2Cmi2QaffxGO/2RvWi9sL+FAiRiXMgsyxQ1DIDA==}
