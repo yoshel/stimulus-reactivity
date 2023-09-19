@@ -8,9 +8,9 @@ import useReactivity from "stimulus-reactivity"
 
 // connects to data-controller="reactive"
 export default class extends Controller {
-  static state = {
+  static state = () => ({
     name: ""
-  }
+  })
 
   connect() {
     // Will also create getters and setters for all keys in static state
@@ -46,11 +46,11 @@ import useReactivity from "stimulus-reactivity"
 Define reactive values in state:
 ```
 export default class extends Controller {
-  static state = {
+  static state = () => ({
     name: "",
     ingredients: new Map(),
     instructions: []
-  }
+  })
 }
 ```
 
@@ -90,11 +90,11 @@ The methods can accept the element that calls it as the first parameter.
 
 Properties in state already has getters and setters so no need to define methods for them.
 ```
-static state = {
+static state = () => ({
   name: "",
   ingredients: new Map(),
   instructions: []
-}
+})
 
 connect() {
   useReactivity(this)
@@ -125,7 +125,7 @@ Almost all of the data attributes are scoped by the controller identifier.
 
 ### text
 ```
-data-<controller>-text
+data-<identifier>-text
 ```
 Updates the element's `textContent`.
 Example:
@@ -258,7 +258,8 @@ connect() {
 ```
 
 ### watch
-Runs immediately and reruns everytime the declared state is changed. Old value is accessible inside.
+Runs everytime the declared state is changed. Old value is accessible inside. There's an optional third argument
+that accepts a boolean to run the callback immediately at first time.
 Example:
 ```js
 connect() {
@@ -267,6 +268,9 @@ connect() {
 
     const isLarger = value > oldValue
   })
+  
+  // Immediate, will run immediately
+  this.watch("amount", () => console.log(this.name), true)
 }
 ```
 
