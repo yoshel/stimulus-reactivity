@@ -1,6 +1,6 @@
 {
   "name": "stimulus-reactivity",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "Reactivity mixin for Stimulus",
   "author": "Helson Yosores",
   "license": "MIT",
@@ -9,8 +9,12 @@
     "url": "https://github.com/yoshel/stimulus-reactivity.git"
   },
   "type": "module",
-  "main": "../marketplace/vendor/javascript/stimulus-reactivity.js",
-  "module": "../marketplace/vendor/javascript/stimulus-reactivity.js",
+  "main": "dist/stimulus-reactivity.js",
+  "module": "dist/stimulus-reactivity.js",
+  "files": [
+    "dist/stimulus-reactivity.js",
+    "dist/stimulus-reactivity.umd.cjs"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
