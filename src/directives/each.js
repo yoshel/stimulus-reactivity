@@ -2,12 +2,12 @@ import { directive } from "../directive"
 
 export const each = directive("each", (element, { effect, cleanup, value }) => {
   effect(() => {
-    if (element._undoEach) element._undoEach()
+    if (element._sr_undoEach) element._sr_undoEach()
 
     loop(element, value())
   })
 
-  cleanup(() => element._undoEach && element._undoEach())
+  cleanup(() => element._sr_undoEach && element._sr_undoEach())
 })
 
 function loop(template, value) {
@@ -25,5 +25,5 @@ function loop(template, value) {
     lastElement = clone
   })
 
-  template._undoEach = () => addedElements.forEach(element => element.remove())
+  template._sr_undoEach = () => addedElements.forEach(element => element.remove())
 }

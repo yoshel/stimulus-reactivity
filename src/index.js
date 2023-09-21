@@ -1,5 +1,5 @@
-import { effectScope, effect, reactive, pauseTracking, enableTracking } from "@vue/reactivity"
-import { createObserver } from "./observer"
+import { effect, enableTracking, pauseTracking } from "@vue/reactivity"
+import { createContext } from "./context"
 import { bind } from "./directives/bind"
 import { cloak } from "./directives/cloak"
 import { each } from "./directives/each"
@@ -10,35 +10,18 @@ import { show } from "./directives/show"
 import { text } from "./directives/text"
 
 export default function useReactivity(controller) {
-  const state = reactive(controller.constructor.state())
-  const parentScope = effectScope()
-  const observer = createObserver()
-  const context = { controller, observer, parentScope }
+  const context = createContext(controller)
 
-  const directives = [
-    cloak(context),
-    if_(context),
-    each(context),
-    model(context),
-    bind(context),
-    show(context),
-    text(context),
-    html(context)
-  ]
-  observer.onElementAdded(element => {
-    setup(element, directives)
-  })
-  observer.onElementRemoved(element => {
-    teardown(element, directives)
-  })
-  observer.onAttributeRemoved((element, attribute) => {
-    directives.find(d => d.handles(attribute))?.cleanup(element)
-  })
-  observer.onAttributeAdded((element, attribute) => {
-    directives.find(d => d.handles(attribute))?.handle(element)
-  })
+  context.addDirective(cloak)
+  context.addDirective(if_)
+  context.addDirective(each)
+  context.addDirective(model)
+  context.addDirective(bind)
+  context.addDirective(show)
+  context.addDirective(text)
+  context.addDirective(html)
 
-  const watchEffect = callback => parentScope.run(() => effect(callback))
+  const watchEffect = callback => context.scope.run(() => effect(callback))
   const watch = (method, callback, immediate = false) => {
     let firstTime = true
     let previousValue
@@ -56,40 +39,16 @@ export default function useReactivity(controller) {
     })
   }
 
-  const start = () => {
-    observer.start(controller.element)
-    setup(controller.element, directives)
-  }
-
-  const stop = () => {
-    observer.stop()
-    parentScope.stop()
-  }
-
   const controllerDisconnect = controller.disconnect.bind(controller)
   const disconnect = () => {
-    stop()
+    context.stop()
     controllerDisconnect()
   }
 
   Object.assign(controller, { state, watchEffect, watch, disconnect })
   defineStateAccessors(controller, state)
 
-  start()
-}
-
-function setup(element, directives) {
-  // Setup children first and wrap with Array.from so that it doesn't include any DOM changes made by directives.
-  Array.from(element.children).forEach(child => setup(child, directives))
-
-  directives.forEach(directive => directive.handle(element))
-}
-
-function teardown(element, directives) {
-  // Teardown children first and wrap with Array.from so that it doesn't include any DOM changes made by directives.
-  Array.from(element.children).forEach(child => teardown(child, directives))
-
-  directives.forEach(directive => directive.cleanup(element))
+  context.start()
 }
 
 function defineStateAccessors(controller, state) {

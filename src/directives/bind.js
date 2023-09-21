@@ -22,7 +22,7 @@ export const bind = directive("bind", (element, { attribute, value, effect }) =>
 })
 
 function bindClass(element, value) {
-  if (element._undoClass) element._undoClass()
+  if (element._sr_undoClass) element._sr_undoClass()
 
   // TODO: handle array, object values
   let addedClasses = []
@@ -30,7 +30,7 @@ function bindClass(element, value) {
   element.classList.add(...missingClasses)
   addedClasses = addedClasses.concat(missingClasses)
 
-  element._undoClass = () => element.classList.remove(...addedClasses)
+  element._sr_undoClass = () => element.classList.remove(...addedClasses)
 }
 
 function bindAttributeAndProperty(element, property, value) {

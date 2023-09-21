@@ -9,17 +9,17 @@ export const if_ = directive("if", (element, { effect, cleanup, value }) => {
 })
 
 function show(template) {
-  if (template._undoIf) return // already shown
+  if (template._sr_undoIf) return // already shown
 
   const clone = template.content.cloneNode(true).firstElementChild
   template.after(clone)
 
-  template._undoIf = () => clone.remove()
+  template._sr_undoIf = () => clone.remove()
 }
 
 function hide(template) {
-  if (!template._undoIf) return // already hidden
+  if (!template._sr_undoIf) return // already hidden
 
-  template._undoIf()
-  delete template._undoIf
+  template._sr_undoIf()
+  delete template._sr_undoIf
 }
